@@ -732,244 +732,244 @@ c
 c D.R. Schultz and C.O. Reinhold, version 5/15/98
 c Physics Division, Oak Ridge National Laboratory
 c///////////////////////////////////////////////////////////////////////
-
-      program green_pot
-
-      implicit real*8 (a-h,o-z)
-      dimension delr(5)
-
-c/// these statement functions define the Garvey et al. potential, vm,
-c     and its derivative dvm
-
-      om(x) = 1. / ( (eta/xi) * (exp(xi*x)-1.) + 1. )
-      zm(x) = ( float(n-1) * (1.-om(x)) - z )
-      vm(x) = zm(x) / x
-
-      dom(x) = -1. * om(x)**2 * eta * exp(xi*x)
-      dzm(x) = -1. * (float(n-1)) * dom(x)
-      dvm(x) = zm(x) * (-1./(x**2)) + dzm(x)/x
-
-c/// open the output file
-
-      open(unit=7,file='green-pot.out',status='unknown')
-
-c/// take input from the console 
-
-      write(6,*) 'Enter q, Z: '
-      read(5,*) q,z
-      n = int(z-q+1.0001d0)
-
-c/// look up, or interpolate, to obtain the parameters of the Garvey
-c     et al. potential, xi and eta
-
-      call param(z,n,xi,eta)
-
-c/// write parameters to screen
-
-      write(6,*)
-      write(6,*) 'q, Z, xi, eta:'
-      write(6,*) q,z,xi,eta
-
-c/// define the asymptotic Coulomb charge
-
-      zc = z - n + 1
-
-c/// define radial mesh for r in atomic units
-
-      delr(1) = 0.01
-      delr(2) = 0.1
-      delr(3) = 0.5
-      delr(4) = 1.
-      delr(5) = 5.
-
-c/// set tolerance for difference between vm and vc and their derivative 
-c     at which range can be set
-
-      tol = 1.e-6
-      told = 1.e-6
-      range = 10.
-      iskip = 0
-
-c/// loop over radial mesh points, print potentials, etc.
-
-      write(7,*)
-     &'   r        vm           vc           vm-vc        dvm-dvc'
-      r = 0.
-      do i=1,5
-      do j=1,10
-         r = r + delr(i)
-	 diff = vm(r) + zc/r
-	 diffd = dvm(r) - zc/r/r
-c        write(6,11) r, vm(r), -zc/r, diff, diffd
-         write(7,11) r, vm(r), -zc/r, diff, diffd
-         if ((iskip.eq.0)
-     &       .and.(abs(diff).le.tol).and.(abs(diffd).le.told)) then
-	    range = r
-	    iskip = 999
-         end if
-c         if (-vm(r).gt.1.e-60) write(7,*) r, -vm(r)
-      end do
-      end do
-
-c/// write range estimate
-
-      write(6,*)
-      write(6,*) 'Estimated range:'
-      write(6,*) range
-
-c/// finished
-
-      close(7)
- 11   format(1x,f7.4,2x,1p,4(e11.4,2x),0p)
-      stop
-      end
-
-c///////////////////////////////////////////////////////////////////////
-      subroutine param(z,n,xi,eta)
-
-      implicit real*8 (a-h,o-z)
-      dimension xi0(2:54), xi1(2:54), eta0(2:54), eta1(2:54)
-
-c/// fitting parameters from Garvey et al., note values for N= 38, 40,
-c     43, 45, 47, 49, 51, and 53 have been linearly interpolated from
-c     their Table 1 as they suggest 
-
-      data xi0 /2.625, 2.164, 1.300, 1.031, 1.065, 1.179, 1.360, 
-     &          1.508, 1.792, 1.712, 1.492, 1.170, 1.012, 0.954,
-     &          0.926, 0.933, 0.957, 0.964, 0.941, 0.950, 0.998,
-     &          1.061, 1.138, 1.207, 1.308, 1.397, 1.455, 1.520,
-     &          1.538, 1.541, 1.512, 1.492, 1.460, 1.407, 1.351,
-     &          1.286, 1.208, 1.129, 1.134, 1.139, 1.136, 1.167,
-     &          1.197, 1.222, 1.246, 1.225, 1.205, 1.168, 1.130,
-     &          1.090, 1.050, 1.047, 1.044/
-      data xi1 /1.2996, 0.9764, 0.6465, 0.4924, 0.4800, 0.4677,
-     &          0.4613, 0.4602, 0.4515, 0.3923, 0.3452, 0.3191,
-     &          0.2933, 0.2659, 0.2478, 0.2368, 0.2165, 0.2151,
-     &          0.2248, 0.2324, 0.2345, 0.2243, 0.2291, 0.2408,
-     &          0.2391, 0.2462, 0.2397, 0.2246, 0.2106, 0.1988,
-     &          0.1914, 0.1990, 0.1857, 0.1897, 0.1872, 0.1686,
-     &          0.1745, 0.1784, 0.1743, 0.1702, 0.1694, 0.1648, 
-     &          0.1601, 0.1594, 0.1587, 0.1493, 0.1358, 0.1377, 
-     &          0.1395, 0.1374, 0.1354, 0.1231, 0.1107/
-      data eta0 /1.770, 1.750, 1.880, 2.000, 2.130, 2.270, 2.410,
-     &           2.590, 2.710, 2.850, 3.010, 3.170, 3.260, 3.330,
-     &           3.392, 3.447, 3.500, 3.516, 3.570, 3.627, 3.667,
-     &           3.709, 3.745, 3.803, 3.840, 3.891, 3.973, 4.000,
-     &           4.050, 4.110, 4.182, 4.230, 4.290, 4.369, 4.418,
-     &           4.494, 4.556, 4.618, 4.649, 4.680, 4.749, 4.759,
-     &           4.769, 4.799, 4.829, 4.867, 4.904, 4.947, 4.990,
-     &           5.020, 5.050, 5.076, 5.101/ 
-      data eta1 /1.1402, 0.6821, 0.5547, 0.4939, 0.4434, 0.4143,
-     &           0.3925, 0.3755, 0.3671, 0.3469, 0.3269, 0.3087,
-     &           0.2958, 0.2857, 0.2739, 0.2633, 0.2560, 0.2509,
-     &           0.2404, 0.2328, 0.2238, 0.2171, 0.2187, 0.2090,
-     &           0.2088, 0.2048, 0.1925, 0.1985, 0.1878, 0.2001,
-     &           0.1897, 0.1782, 0.1772, 0.1686, 0.1611, 0.1619,
-     &           0.1564, 0.1509, 0.1497, 0.1485, 0.1412, 0.1424, 
-     &           0.1435, 0.1416, 0.1397, 0.1406, 0.1414, 0.1369, 
-     &           0.1324, 0.1319, 0.1314, 0.1315, 0.1316/
-
-c/// data for extrapolated values
-
-      data xi0_60/1.13/, xi0_70/1.10/, xi0_80/1.08/, xi0_90/1.05/, 
-     &     xi0_100/1.02/
-      data xi1_60/0.11/, xi1_70/0.082/, xi1_80/0.072/, xi1_90/0.060/,
-     &     xi1_100/0.047/
-      data eta0_60/5.35/, eta0_70/5.65/, eta0_80/5.83/, eta0_90/6.00/,
-     &     eta0_100/6.15/
-      data eta1_60/0.120/, eta1_70/0.112/, eta1_80/0.108/,
-     &     eta1_90/0.102/, eta1_100/0.100/
-
-c/// if N=2, Z=1 (electron colliding with atomic hydrogen), use parameters
-c     chosen to mimic the exact electrostatic potential (allow some variance
-c     in z so that the value entered numerically may not equal 1.
-
-      if ((n.eq.2).and.(z.ge.0.95.and.z.le.1.05)) then
-         xi = 1.78
-         eta = 1.0
-         goto 100
-      end if
-
-c/// if N.le.54 use tabulated values of Garvey et al.
-     
-      if (n.le.54) then
- 	 zn = z-float(n)
-         xi = xi0(n) + zn*xi1(n)
- 	 eta = eta0(n) + zn*eta1(n)
-         goto 100
-      end if
-
-c/// if N.gt.54 use visually extrapolated values of Garvey et al.
-c     parameters (i.e. plot tabulated values and extrapolate). The
-c     user should note the uncertainty in using this approach.
-
-      if ((n.gt.54).and.(n.le.60)) then
-         xn=float(n)
-         xi0e=(xn-60.)/(-6.)*xi0(54) + (xn-54.)/6.*xi0_60
-         xi1e=(xn-60.)/(-6.)*xi1(54) + (xn-54.)/6.*xi1_60
-         eta0e=(xn-60.)/(-6.)*eta0(54) + (xn-54.)/6.*eta0_60
-         eta1e=(xn-60.)/(-6.)*eta1(54) + (xn-54.)/6.*eta1_60
- 	 zn = z-float(n)
-         xi = xi0e + zn*xi1e
- 	 eta = eta0e + zn*eta1e
-         goto 100
-      end if
-
-      if ((n.gt.60).and.(n.le.70)) then
-         xn=float(n)
-         xi0e=(xn-70.)/(-10.)*xi0_60 + (xn-60.)/10.*xi0_70
-         xi1e=(xn-70.)/(-10.)*xi1_60 + (xn-60.)/10.*xi1_70
-         eta0e=(xn-70.)/(-10.)*eta0_60 + (xn-60.)/10.*eta0_70
-         eta1e=(xn-70.)/(-10.)*eta1_60 + (xn-60.)/10.*eta1_70
- 	 zn = z-float(n)
-         xi = xi0e + zn*xi1e
- 	 eta = eta0e + zn*eta1e
-         goto 100
-      end if
-
-      if ((n.gt.70).and.(n.le.80)) then
-         xn=float(n)
-         xi0e=(xn-80.)/(-10.)*xi0_70 + (xn-70.)/10.*xi0_80
-         xi1e=(xn-80.)/(-10.)*xi1_70 + (xn-70.)/10.*xi1_80
-         eta0e=(xn-80.)/(-10.)*eta0_70 + (xn-70.)/10.*eta0_80
-         eta1e=(xn-80.)/(-10.)*eta1_70 + (xn-70.)/10.*eta1_80
- 	 zn = z-float(n)
-         xi = xi0e + zn*xi1e
- 	 eta = eta0e + zn*eta1e
-         goto 100
-      end if
-
-      if ((n.gt.80).and.(n.le.90)) then
-         xn=float(n)
-         xi0e=(xn-90.)/(-10.)*xi0_80 + (xn-80.)/10.*xi0_90
-         xi1e=(xn-90.)/(-10.)*xi1_80 + (xn-80.)/10.*xi1_90
-         eta0e=(xn-90.)/(-10.)*eta0_80 + (xn-80.)/10.*eta0_90
-         eta1e=(xn-90.)/(-10.)*eta1_80 + (xn-80.)/10.*eta1_90
- 	 zn = z-float(n)
-         xi = xi0e + zn*xi1e
- 	 eta = eta0e + zn*eta1e
-         goto 100
-      end if
-
-      if ((n.gt.90).and.(n.le.100)) then
-         xn=float(n)
-         xi0e=(xn-100.)/(-10.)*xi0_90 + (xn-90.)/10.*xi0_100
-         xi1e=(xn-100.)/(-10.)*xi1_90 + (xn-90.)/10.*xi1_100
-         eta0e=(xn-100.)/(-10.)*eta0_90 + (xn-90.)/10.*eta0_100
-         eta1e=(xn-100.)/(-10.)*eta1_90 + (xn-90.)/10.*eta1_100
- 	 zn = z-float(n)
-         xi = xi0e + zn*xi1e
- 	 eta = eta0e + zn*eta1e
-         goto 100
-      end if
-
-c/// if N.gt.100 write message
-
-      write(6,*) 'N chosen to be greater than 100, no parameters 
-     & available'
-
-c/// return here
-
- 100  return
-      end
-                                                                            ****
+c
+c      program green_pot
+c
+c      implicit real*8 (a-h,o-z)
+c      dimension delr(5)
+c
+cc/// these statement functions define the Garvey et al. potential, vm,
+cc     and its derivative dvm
+c
+c      om(x) = 1. / ( (eta/xi) * (exp(xi*x)-1.) + 1. )
+c      zm(x) = ( float(n-1) * (1.-om(x)) - z )
+c      vm(x) = zm(x) / x
+c
+c      dom(x) = -1. * om(x)**2 * eta * exp(xi*x)
+c      dzm(x) = -1. * (float(n-1)) * dom(x)
+c      dvm(x) = zm(x) * (-1./(x**2)) + dzm(x)/x
+c
+cc/// open the output file
+c
+c      open(unit=7,file='green-pot.out',status='unknown')
+c
+cc/// take input from the console 
+c
+c      write(6,*) 'Enter q, Z: '
+c      read(5,*) q,z
+c      n = int(z-q+1.0001d0)
+c
+cc/// look up, or interpolate, to obtain the parameters of the Garvey
+cc     et al. potential, xi and eta
+c
+c      call param(z,n,xi,eta)
+c
+cc/// write parameters to screen
+c
+c      write(6,*)
+c      write(6,*) 'q, Z, xi, eta:'
+c      write(6,*) q,z,xi,eta
+c
+cc/// define the asymptotic Coulomb charge
+c
+c      zc = z - n + 1
+c
+cc/// define radial mesh for r in atomic units
+c
+c      delr(1) = 0.01
+c      delr(2) = 0.1
+c      delr(3) = 0.5
+c      delr(4) = 1.
+c      delr(5) = 5.
+c
+cc/// set tolerance for difference between vm and vc and their derivative 
+cc     at which range can be set
+c
+c      tol = 1.e-6
+c      told = 1.e-6
+c      range = 10.
+c      iskip = 0
+c
+cc/// loop over radial mesh points, print potentials, etc.
+c
+c      write(7,*)
+c     &'   r        vm           vc           vm-vc        dvm-dvc'
+c      r = 0.
+c      do i=1,5
+c      do j=1,10
+c         r = r + delr(i)
+c	 diff = vm(r) + zc/r
+c	 diffd = dvm(r) - zc/r/r
+cc        write(6,11) r, vm(r), -zc/r, diff, diffd
+c         write(7,11) r, vm(r), -zc/r, diff, diffd
+c         if ((iskip.eq.0)
+c     &       .and.(abs(diff).le.tol).and.(abs(diffd).le.told)) then
+c	    range = r
+c	    iskip = 999
+c         end if
+cc         if (-vm(r).gt.1.e-60) write(7,*) r, -vm(r)
+c      end do
+c      end do
+c
+cc/// write range estimate
+c
+c      write(6,*)
+c      write(6,*) 'Estimated range:'
+c      write(6,*) range
+c
+cc/// finished
+c
+c      close(7)
+c 11   format(1x,f7.4,2x,1p,4(e11.4,2x),0p)
+c      stop
+c      end
+c
+cc///////////////////////////////////////////////////////////////////////
+c      subroutine param(z,n,xi,eta)
+c
+c      implicit real*8 (a-h,o-z)
+c      dimension xi0(2:54), xi1(2:54), eta0(2:54), eta1(2:54)
+c
+cc/// fitting parameters from Garvey et al., note values for N= 38, 40,
+cc     43, 45, 47, 49, 51, and 53 have been linearly interpolated from
+cc     their Table 1 as they suggest 
+c
+c      data xi0 /2.625, 2.164, 1.300, 1.031, 1.065, 1.179, 1.360, 
+c     &          1.508, 1.792, 1.712, 1.492, 1.170, 1.012, 0.954,
+c     &          0.926, 0.933, 0.957, 0.964, 0.941, 0.950, 0.998,
+c     &          1.061, 1.138, 1.207, 1.308, 1.397, 1.455, 1.520,
+c     &          1.538, 1.541, 1.512, 1.492, 1.460, 1.407, 1.351,
+c     &          1.286, 1.208, 1.129, 1.134, 1.139, 1.136, 1.167,
+c     &          1.197, 1.222, 1.246, 1.225, 1.205, 1.168, 1.130,
+c     &          1.090, 1.050, 1.047, 1.044/
+c      data xi1 /1.2996, 0.9764, 0.6465, 0.4924, 0.4800, 0.4677,
+c     &          0.4613, 0.4602, 0.4515, 0.3923, 0.3452, 0.3191,
+c     &          0.2933, 0.2659, 0.2478, 0.2368, 0.2165, 0.2151,
+c     &          0.2248, 0.2324, 0.2345, 0.2243, 0.2291, 0.2408,
+c     &          0.2391, 0.2462, 0.2397, 0.2246, 0.2106, 0.1988,
+c     &          0.1914, 0.1990, 0.1857, 0.1897, 0.1872, 0.1686,
+c     &          0.1745, 0.1784, 0.1743, 0.1702, 0.1694, 0.1648, 
+c     &          0.1601, 0.1594, 0.1587, 0.1493, 0.1358, 0.1377, 
+c     &          0.1395, 0.1374, 0.1354, 0.1231, 0.1107/
+c      data eta0 /1.770, 1.750, 1.880, 2.000, 2.130, 2.270, 2.410,
+c     &           2.590, 2.710, 2.850, 3.010, 3.170, 3.260, 3.330,
+c     &           3.392, 3.447, 3.500, 3.516, 3.570, 3.627, 3.667,
+c     &           3.709, 3.745, 3.803, 3.840, 3.891, 3.973, 4.000,
+c     &           4.050, 4.110, 4.182, 4.230, 4.290, 4.369, 4.418,
+c     &           4.494, 4.556, 4.618, 4.649, 4.680, 4.749, 4.759,
+c     &           4.769, 4.799, 4.829, 4.867, 4.904, 4.947, 4.990,
+c     &           5.020, 5.050, 5.076, 5.101/ 
+c      data eta1 /1.1402, 0.6821, 0.5547, 0.4939, 0.4434, 0.4143,
+c     &           0.3925, 0.3755, 0.3671, 0.3469, 0.3269, 0.3087,
+c     &           0.2958, 0.2857, 0.2739, 0.2633, 0.2560, 0.2509,
+c     &           0.2404, 0.2328, 0.2238, 0.2171, 0.2187, 0.2090,
+c     &           0.2088, 0.2048, 0.1925, 0.1985, 0.1878, 0.2001,
+c     &           0.1897, 0.1782, 0.1772, 0.1686, 0.1611, 0.1619,
+c     &           0.1564, 0.1509, 0.1497, 0.1485, 0.1412, 0.1424, 
+c     &           0.1435, 0.1416, 0.1397, 0.1406, 0.1414, 0.1369, 
+c     &           0.1324, 0.1319, 0.1314, 0.1315, 0.1316/
+c
+cc/// data for extrapolated values
+c
+c      data xi0_60/1.13/, xi0_70/1.10/, xi0_80/1.08/, xi0_90/1.05/, 
+c     &     xi0_100/1.02/
+c      data xi1_60/0.11/, xi1_70/0.082/, xi1_80/0.072/, xi1_90/0.060/,
+c     &     xi1_100/0.047/
+c      data eta0_60/5.35/, eta0_70/5.65/, eta0_80/5.83/, eta0_90/6.00/,
+c     &     eta0_100/6.15/
+c      data eta1_60/0.120/, eta1_70/0.112/, eta1_80/0.108/,
+c     &     eta1_90/0.102/, eta1_100/0.100/
+c
+cc/// if N=2, Z=1 (electron colliding with atomic hydrogen), use parameters
+cc     chosen to mimic the exact electrostatic potential (allow some variance
+cc     in z so that the value entered numerically may not equal 1.
+c
+c      if ((n.eq.2).and.(z.ge.0.95.and.z.le.1.05)) then
+c         xi = 1.78
+c         eta = 1.0
+c         goto 100
+c      end if
+c
+cc/// if N.le.54 use tabulated values of Garvey et al.
+c     
+c      if (n.le.54) then
+c 	 zn = z-float(n)
+c         xi = xi0(n) + zn*xi1(n)
+c 	 eta = eta0(n) + zn*eta1(n)
+c         goto 100
+c      end if
+c
+cc/// if N.gt.54 use visually extrapolated values of Garvey et al.
+cc     parameters (i.e. plot tabulated values and extrapolate). The
+cc     user should note the uncertainty in using this approach.
+c
+c      if ((n.gt.54).and.(n.le.60)) then
+c         xn=float(n)
+c         xi0e=(xn-60.)/(-6.)*xi0(54) + (xn-54.)/6.*xi0_60
+c         xi1e=(xn-60.)/(-6.)*xi1(54) + (xn-54.)/6.*xi1_60
+c         eta0e=(xn-60.)/(-6.)*eta0(54) + (xn-54.)/6.*eta0_60
+c         eta1e=(xn-60.)/(-6.)*eta1(54) + (xn-54.)/6.*eta1_60
+c 	 zn = z-float(n)
+c         xi = xi0e + zn*xi1e
+c 	 eta = eta0e + zn*eta1e
+c         goto 100
+c      end if
+c
+c      if ((n.gt.60).and.(n.le.70)) then
+c         xn=float(n)
+c         xi0e=(xn-70.)/(-10.)*xi0_60 + (xn-60.)/10.*xi0_70
+c         xi1e=(xn-70.)/(-10.)*xi1_60 + (xn-60.)/10.*xi1_70
+c         eta0e=(xn-70.)/(-10.)*eta0_60 + (xn-60.)/10.*eta0_70
+c         eta1e=(xn-70.)/(-10.)*eta1_60 + (xn-60.)/10.*eta1_70
+c 	 zn = z-float(n)
+c         xi = xi0e + zn*xi1e
+c 	 eta = eta0e + zn*eta1e
+c         goto 100
+c      end if
+c
+c      if ((n.gt.70).and.(n.le.80)) then
+c         xn=float(n)
+c         xi0e=(xn-80.)/(-10.)*xi0_70 + (xn-70.)/10.*xi0_80
+c         xi1e=(xn-80.)/(-10.)*xi1_70 + (xn-70.)/10.*xi1_80
+c         eta0e=(xn-80.)/(-10.)*eta0_70 + (xn-70.)/10.*eta0_80
+c         eta1e=(xn-80.)/(-10.)*eta1_70 + (xn-70.)/10.*eta1_80
+c 	 zn = z-float(n)
+c         xi = xi0e + zn*xi1e
+c 	 eta = eta0e + zn*eta1e
+c         goto 100
+c      end if
+c
+c      if ((n.gt.80).and.(n.le.90)) then
+c         xn=float(n)
+c         xi0e=(xn-90.)/(-10.)*xi0_80 + (xn-80.)/10.*xi0_90
+c         xi1e=(xn-90.)/(-10.)*xi1_80 + (xn-80.)/10.*xi1_90
+c         eta0e=(xn-90.)/(-10.)*eta0_80 + (xn-80.)/10.*eta0_90
+c         eta1e=(xn-90.)/(-10.)*eta1_80 + (xn-80.)/10.*eta1_90
+c 	 zn = z-float(n)
+c         xi = xi0e + zn*xi1e
+c 	 eta = eta0e + zn*eta1e
+c         goto 100
+c      end if
+c
+c      if ((n.gt.90).and.(n.le.100)) then
+c         xn=float(n)
+c         xi0e=(xn-100.)/(-10.)*xi0_90 + (xn-90.)/10.*xi0_100
+c         xi1e=(xn-100.)/(-10.)*xi1_90 + (xn-90.)/10.*xi1_100
+c         eta0e=(xn-100.)/(-10.)*eta0_90 + (xn-90.)/10.*eta0_100
+c         eta1e=(xn-100.)/(-10.)*eta1_90 + (xn-90.)/10.*eta1_100
+c 	 zn = z-float(n)
+c         xi = xi0e + zn*xi1e
+c 	 eta = eta0e + zn*eta1e
+c         goto 100
+c      end if
+c
+cc/// if N.gt.100 write message
+c
+c      write(6,*) 'N chosen to be greater than 100, no parameters 
+c     & available'
+c
+cc/// return here
+c
+c 100  return
+c      end
+c                                                                            ****
