@@ -1,5 +1,5 @@
-ADJHELASTIC, GREEN-POT.  ELASTIC - ELASTIC SCATTERING OF ELECTRONS FROM ADJH0000
-1   IONS AND ATOMS.  D.R. SCHULTZ, C.O. REINHOLD.                       ADJH0000
+cADJHELASTIC, GREEN-POT.  ELASTIC - ELASTIC SCATTERING OF ELECTRONS FROM ADJH0000
+c1   IONS AND ATOMS.  D.R. SCHULTZ, C.O. REINHOLD.                       ADJH0000
 c///////////////////////////////////////////////////////////////////////
 c    Calculation of elastic scattering cross sections of electrons 
 c                      at ions and atoms
