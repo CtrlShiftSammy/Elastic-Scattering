@@ -651,17 +651,17 @@ c/// echo input
       close(1)
       return
       end
-c/////////////////////////////////////////////////////////////////////// 
---CUT------------------------------------------------------------------
-1000.				! en, electron energy in eV	
-1.				! rmu, electron-projectile reduced mass
-0.				! rstart, beginning of radial integ. (a.u.)
-14.1 	  			! rend0, radius ending numerical integ. (a.u.)
-1.e-3				! space, numerical integration step (a.u.)
-0,100,1				! lmin, lmax, lspc
-0.,54.,1.044,5.101,14.1		! qmod, zmod, xi, eta, rmod
-0				! iborn, =0 numerical integ., =1 Born approx.
---CUT------------------------------------------------------------------
+cc/////////////////////////////////////////////////////////////////////// 
+c--CUT------------------------------------------------------------------
+c1000.				! en, electron energy in eV	
+c1.				! rmu, electron-projectile reduced mass
+c0.				! rstart, beginning of radial integ. (a.u.)
+c14.1 	  			! rend0, radius ending numerical integ. (a.u.)
+c1.e-3				! space, numerical integration step (a.u.)
+c0,100,1				! lmin, lmax, lspc
+c0.,54.,1.044,5.101,14.1		! qmod, zmod, xi, eta, rmod
+c0				! iborn, =0 numerical integ., =1 Born approx.
+c--CUT------------------------------------------------------------------
 c///////////////////////////////////////////////////////////////////////
 c
 c This interactive program computes the independent particle model
