@@ -601,7 +601,7 @@ c/// starting point for the numerical integration of the Schrodinger equation
     
 c/// Ending point for the numerical integration of the Schrodinger equation
 c    rend0 should have two properties: (1) the potential at this point
-c    must reach its aymptotic form (e.g. COulomb or negligible) so that
+c    must reach its aymptotic form (e.g. Coulomb or negligible) so that
 c    the wavefunction can be expressed as a linear combination of the
 c    regular and irregular Coulomb functions  (2) the value of rend0
 c    must be large enough so that the routine used to evaluate the
