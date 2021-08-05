@@ -38,7 +38,7 @@ c///////////////////////////////////////////////////////////////////////
       complex*16 cz, cgamma, cg, ci, cratio, cdexpon, cfc, cfnc, cf
       real*8 logder
       integer i, j
-      real*8, dimension (182, 2) :: Output
+      real*8, dimension (10000, 2) :: Output
       dimension fl(nl), z11(nl), phase(nl), sigma(nl)
       dimension f(0:nl), g(0:nl), fp(0:nl), gp(0:nl)
       common veloc, en
@@ -192,18 +192,24 @@ c/// differential cross sections
 
       close(iout)
 
-      do i = 1, 182
-          Output(i, 1) = i * 0.149450549
+      do i = 1, 10000
+          Output(i, 1) = i * 0.0027
           Output(i, 2) = 0
       end do
-      do i = 1, 182
+      do i = 1, 10000
             call pot(Output(i, 2),Output(i, 1))
+            Output(i, 2) = -1 * Output(i, 2) * Output(i, 1)
       end do
-      open(unit = 2 , file="potentials.txt")
-      do i = 1, 182
-          write (2, *) Output(i, 1), (-1 * Output (i, 2))
+      open(unit = 2 , file="predicted_charge_enclosed.txt")
+      do i = 1, 10000
+          write (2, *) Output(i, 1),  Output (i, 2)
       end do
       close (unit = 2)
+      open(unit = 3 , file="predicted_charge_densities.txt")
+      do i = 2, 10000
+          write (3, *) Output(i, 1),  (Output (i, 2) - Output (i-1, 2)) / (4 * pi * ((Output (i, 1) - Output (i-1, 1))) * Output (i-1, 1) **2 )
+      end do
+      close (unit = 3)
   
       stop
       end
