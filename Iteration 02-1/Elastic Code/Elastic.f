@@ -219,25 +219,23 @@ c Central potential for elastic scattering.  Implemented for the
 c Garvey et al. parameterized Hartree-Fock model potential. 
 
       subroutine pot(v,r)
+            integer i, j
+            real*8 v, r, pi
+            real, dimension (182, 2) :: Input
+            pi = 4 * atan(1.0)
+            open(unit=999,file='calculated_potentials.txt')
+            do i = 1, 182
+                  if(r .ge. Input(i,1) .and. r .lt. Input(i+1,1)) then
+                        v = (r - Input(i, 1))
+                        v =  v * (Input(i+1,2) - Input(i, 2)) 
+                        v = v / (Input(i+1,1) - Input(i, 1))
+                        v = Input(i,2) + v
+                        !v = Input(i,2) + (Input(i+1,2) - Input(i, 2)) * (r - Input(i, 1)) / (Input(i+1,1) - Input(i, 1))
+                        exit
+                  end if
+            end do
+            close(999)
 
-      implicit real*8(a-h,o-z)
-      common /modpot/ zmod, xi, eta, rmod, zasy, nmod
-      dimension fact(8)
-      data alp1,alp2,d2/1.38414,2.32,0.11578/
-      data r0,hla/2.373,10.6172/
-      data fact/1.,2.,6.,24.,120.,720.,5040.,40320./
- 
-      o(r) = 1.d0/((eta/xi)*exp(xi*r)-(eta/xi)+1.d0)
-      z(r) = ( dfloat(nmod-1) * (1.d0-o(r)) ) - zmod
-      vmod(r) = z(r) / r
-      if (r.lt.rmod) then
-         vtemp = vmod(r)
-      else
-         vtemp = zasy / r
-      end if
-
-      v = vtemp 
- 
       return
       end
  

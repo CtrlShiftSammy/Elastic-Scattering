@@ -6,7 +6,7 @@ program divider
     open(unit = 2 , file="charge_enclosed_modified.txt")
     do i = 1, 182
         read (1,*,end = 10) (Input(i, j) ,  j = 1, 2)
-        Input(i, 2) = Input(i, 2) / 28.0
+        Input(i, 2) = 54.0 - Input(i, 2) * 52.0 / 56.0
         write (2, *) Input(i, 1), Input(i, 2)
     end do
     10 close (unit = 1)
