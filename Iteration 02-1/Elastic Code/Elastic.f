@@ -112,9 +112,9 @@ c/// Integrate radial Schrodinger equation for log derivative
 c/// calculation of the phase shifts 
       rho = rend0 * p1
       tol = 1.0e-04
-      max = 50
+      maximum = 50
  
-      call cwf(lmax, rho, etahyp, tol, max, f, g, fp, gp)
+      call cwf(lmax, rho, etahyp, tol, maximum, f, g, fp, gp)
  
       hcon = 4.d0*pi/p1/p1
       tcs=0.d0
@@ -317,7 +317,7 @@ c functions in the asymptotic regime, after the method of Abramowitz,
 c as well as their derivatives (see Abramowitz and Stegun, Handbook of
 c Mathematical Functions, (Dover, New York, 1972) chapter 14.5)
 
-      subroutine hyper(l, rho, eta, sigmal, tol, max,
+      subroutine hyper(l, rho, eta, sigmal, tol, maximum,
      &                 fhyp, ghyp, dfhyp, dghyp)
       implicit real*8(a-h,o-z)
  
@@ -341,7 +341,7 @@ c Mathematical Functions, (Dover, New York, 1972) chapter 14.5)
       bk = (l*(l+1) + eta*eta) * 0.5d0 / rho
  
       kmin = 1
-      kmax = 10
+      kmaximum = 10
  
 1     f1old = f1
       g1old = g1
@@ -350,7 +350,7 @@ c Mathematical Functions, (Dover, New York, 1972) chapter 14.5)
  
       kount = kount + 1
  
-      do 100 k=kmin,kmax
+      do 100 k=kmin,kmaximum
  
          f1kp1 = ak*f1k - bk*g1k
          g1kp1 = ak*g1k + bk*f1k
@@ -378,14 +378,14 @@ c     errg1 = abs( (g1 - g1old) / g1 )
 c     errf2 = abs( (f2 - f2old) / f2 )
 c     errg2 = abs( (g2 - g2old) / g2 )
 c
-c     errmax = amax1(errf1, errg1, errf2, errg2)
+c     errmaximum = amaximum1(errf1, errg1, errf2, errg2)
  
       wronk = g1*f2-f1*g2
  
-      errmax = abs ( wronk + 1.d0 )
+      errmaximum = abs ( wronk + 1.d0 )
  
-      if ( errmax.gt.tol ) then
-         if ( kount.gt.max ) then
+      if ( errmaximum.gt.tol ) then
+         if ( kount.gt.maximum ) then
             write(6,*) 'Warning: Hypergeometric convergence failure',
      &            ' kount=',kount
             write(6,*) 'Wronskian (-1) = ',wronk
@@ -393,7 +393,7 @@ c     errmax = amax1(errf1, errg1, errf2, errg2)
             stop
          end if
          kmin=kmin+10
-         kmax=kmax+10
+         kmaximum=kmaximum+10
          goto 1
       end if
  
@@ -415,7 +415,7 @@ c two are calculated and then the rest found by recursion.  (The method
 c is from Abramowitz and Stegun,Handbook of Mathematical Functions, 
 c (Dover, New York, 1972)).   
 
-      subroutine cwf(lmax, rho, eta, tol, max,f, g, fp, gp)
+      subroutine cwf(lmax, rho, eta, tol, maximum,f, g, fp, gp)
 
       implicit real*8(a-h,o-z)
       parameter ( nl = 1000 )
@@ -436,7 +436,7 @@ c     and their derivatives fp and gp for l = 0 and 1
          cg = cgamma(cz)
          sigmal = atan2 ( dimag(cg), dreal(cg) )
  
-         call hyper(l, rho, eta, sigmal, tol, max,
+         call hyper(l, rho, eta, sigmal, tol, maximum,
      &              fhyp, ghyp, dfhyp, dghyp)
  
          f(l) = fhyp
@@ -491,7 +491,7 @@ c  for use in the Born approximation
  
       pm=p
       rmin=1.d-10
-      rmax=rmod
+      rmaximum=rmod
       call romba(rmin,rmod,fint,zef,1.d-5,ndim,ier)
       if(ier.ne.0)then
           write(6,*)'ndim=',ndim,'  ier=',ier
@@ -633,7 +633,7 @@ c    k is the electron momentum).
 c/// step in a.u. for the numerical integration of the Scroedinger Eq
       read(1,*) spac
 
-c/// minimum, maximum angular momenta and step
+c/// minimum, maximumimum angular momenta and step
       read(1,*) lmin, lmax, lspc
 
 c/// data for atomic potential of Garvey et al.
