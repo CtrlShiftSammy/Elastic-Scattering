@@ -1,5 +1,6 @@
 import math
 import cmath
+import numpy as np
 
 input_file = open("Iteration 3/elastic.in", "r")
 en = (float(input_file.readline().strip()) / 27.211)
@@ -28,9 +29,16 @@ p1 = math.sqrt(2 * en * rmu)
 zasy = -1 * qmod
 etahyp = float(zasy) / p1
 lmin1 = lmin + 1
-lmmx = lmax + 1
-nos = 2*int ((rend0-rstart)/2.0/spac)+2
+lmx = lmax + 1
+nos = 2* int((rend0-rstart)/2.0/spac) +2
 space = (rend0-rstart)/ float(nos)
 del1 = space*space*rmu2 /3.0
 del2 = 2.0*del1
 del4 = 4.0*del1
+fl = np.empty(shape = (1 + int((lmx - lmin1) / lspc)))
+zl1 = np.empty(shape = (1 + int((lmx - lmin1) / lspc)))
+
+for i in range(lmin1, lmx, lspc):
+    fl[i] = float(i * (i-1)) / rmu2
+    zl1[i] = 10 ** 20
+
