@@ -73,7 +73,6 @@ data[0, 3] = data[0, 2] / data[0, 0]
 for i in range(1, 182):
     data[i, 2] = data[i-1, 2] + 4 * pi * ((data[i, 0]) ** 3 - (data[i-1, 0]) ** 3) * (data[i, 1] + data[i-1, 1]) / 6.0
     data[i, 3] = (zmod - data[i, 2]) / data[i, 0]
-    #print(data[i, 0], data[i, 1], data[i, 2], data[i, 3])
 data_file.close()
 
 def pot_data(r):
@@ -98,11 +97,9 @@ def cgamma(z):
         for i in range(0, 6):
             cser = cser + cof[i] / (i + z)
         G = cser * ctmp * math.sqrt(2 * pi)
-        #print(z, ctmp)
         return G
 
 def hyper(i, rho, eta, sigmal):
-    #print (i, rho, eta, sigmal)
     thetal = rho - eta*math.log(2*rho) - i*pi*0.5 + sigmal
  
     f1k = 1.0
@@ -148,9 +145,6 @@ def hyper(i, rho, eta, sigmal):
     ghyp = f1 * c - g1 * s
     dfhyp = g2 * c + f2 * s
     dghyp = f2 * c - g2 * s
-    
-    #print(fhyp, ghyp, dfhyp, dghyp)
-    #print("")
     
     return fhyp, ghyp, dfhyp, dghyp
 
@@ -205,12 +199,9 @@ for i in range(lmin1, lmx + 1, lspc):
 if lmax < 1000:
     for i in range(0, 2):
         cz = i + 1.0 + ci*etahyp
-        #print(cz)
         cg = cgamma(cz)
         sigmal = cmath.phase(cg) 
-        #print(i, rho, etahyp, sigmal)
         f[i], g[i], fp[i], gp[i] = hyper(i, rho, etahyp, sigmal)
-        #print(f[i], g[i], fp[i], gp[i]) 
     for i in range(1, lmax):
         lm1 = i - 1
         lp1 = i + 1
@@ -219,16 +210,11 @@ if lmax < 1000:
         term2 = lp1 * math.sqrt( i * i + eta2 )
         term3 = 1.0 / ( i * math.sqrt( lp1 * lp1 + eta2 ) )
 
-        #print (term1, term2, term3)
-        
         f[lp1] = ( term1 * f[i] - term2 * f[lm1] ) * term3
         g[lp1] = ( term1 * g[i] - term2 * g[lm1] ) * term3
 
         term1 = math.sqrt( lp1*lp1 + eta2 ) / lp1
         term2 = ( lp1*lp1 / rho + etahyp) / lp1
-
-        #print (term1, term2, term3)
-        #print ("")
 
         fp[lp1] = term1 * f[i] - term2 * f[lp1]
         gp[lp1] = term1 * g[i] - term2 * g[lp1]
