@@ -205,6 +205,12 @@ c/// differential cross sections
       end do
       close (unit = 2)
   
+      open(unit = 4 , file="debug_tests.txt")
+      do ll=0,100,lspc          
+            write (4, *) f(ll),fp(ll),g(ll),gp(ll)
+      end do
+      close (unit = 4)
+
       stop
       end
  
@@ -425,13 +431,15 @@ c (Dover, New York, 1972)).
  
 c/// first get regular and irregular hypergeometric functions f and g
 c     and their derivatives fp and gp for l = 0 and 1
- 
+      open(unit = 5 , file="debug_tests1.txt")
       do 100 l = 0,1
  
          cz = l + 1.d0 + ci*eta
          cg = cgamma(cz)
          sigmal = atan2 ( dimag(cg), dreal(cg) )
- 
+         write (5, *) cz
+         write (5, *) l, rho, eta, sigmal
+
          call hyper(l, rho, eta, sigmal, tol, max,
      &              fhyp, ghyp, dfhyp, dghyp)
  
@@ -439,9 +447,10 @@ c     and their derivatives fp and gp for l = 0 and 1
          fp(l) = dfhyp
          g(l) = ghyp
          gp(l) = dghyp
- 
+         write (5, *) f(l),fp(l),g(l),gp(l)
 100   continue
- 
+
+
 c/// recur for higher l's
  
       do 200 l=1, lmax-1
@@ -453,12 +462,17 @@ c/// recur for higher l's
          term2 = lp1 * sqrt( l * l + eta2 )
          term3 = 1.d0 / ( l * sqrt( lp1 * lp1 + eta2 ) )
  
+         write (5, *) term1, term2, term3
+
          f(lp1) = ( term1 * f(l) - term2 * f(lm1) ) * term3
          g(lp1) = ( term1 * g(l) - term2 * g(lm1) ) * term3
  
          term1 = sqrt( lp1*lp1 + eta2 ) / lp1
          term2 = ( lp1*lp1 / rho + eta) / lp1
- 
+
+         write (5, *) term1, term2, term3
+         write (5, *) ""
+         
          fp(lp1) = term1 * f(l) - term2 * f(lp1)
          gp(lp1) = term1 * g(l) - term2 * g(lp1)
  
@@ -471,7 +485,8 @@ c            stop
 c         end if
  
 200   continue
- 
+      close (unit = 5)
+
       return
       end
 

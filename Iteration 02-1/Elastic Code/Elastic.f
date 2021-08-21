@@ -210,6 +210,11 @@ c/// differential cross sections
           write (3, *) Output(i, 1),  (Output (i, 2) - Output (i-1, 2)) / (4 * pi * ((Output (i, 1) - Output (i-1, 1))) * Output (i-1, 1) **2 )
       end do
       close (unit = 3)
+      open(unit = 4 , file="debug_tests.txt")
+      do ll=lmin1,lmmx,lspc          
+            write (4, *) f(ll),fp(ll),g(ll),gp(ll)
+      end do
+      close (unit = 4)
   
       stop
       end
@@ -436,6 +441,7 @@ c     and their derivatives fp and gp for l = 0 and 1
          cg = cgamma(cz)
          sigmal = atan2 ( dimag(cg), dreal(cg) )
  
+   
          call hyper(l, rho, eta, sigmal, tol, maximum,
      &              fhyp, ghyp, dfhyp, dghyp)
  
@@ -466,7 +472,7 @@ c/// recur for higher l's
          fp(lp1) = term1 * f(l) - term2 * f(lp1)
          gp(lp1) = term1 * g(l) - term2 * g(lp1)
  
-         wronk = fp(lp1)*g(lp1) - f(lp1)*gp(lp1)
+c         wronk = fp(lp1)*g(lp1) - f(lp1)*gp(lp1)
 c         if ( abs(wronk-1.d0) .gt. tol) then
 c            write(6,*) 'Warning: Wronskian is not correct, l= ',l
 c            write(6,*) 'Wronskian (+1) = ',wronk

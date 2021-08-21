@@ -14,7 +14,7 @@ program charge
     do i = 1, 182
         Output(i, 1) = Input(i, 1)
     end do
-    Output(1, 2) = (Input(1, 1) ** 3) * Input(1, 2) * 4 * pi
+    Output(1, 2) = (Input(1, 1) ** 3) * Input(1, 2) * 4 * pi / 3
     do i = 2, 182
         var = (Input(i, 1) ** 3 - Input(i-1, 1) ** 3) * 4 * pi
         var = var * (Input(i, 2) + Input(i-1, 2)) / 6.0
