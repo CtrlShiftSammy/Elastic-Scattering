@@ -75,11 +75,18 @@ for i in range(1, 182):
     data[i, 3] = (zmod - data[i, 2]) / data[i, 0]
 data_file.close()
 
+matrix_file = open("Iteration 3/matrix.txt", "w")
+for i in range(0, 182):
+    matrix_file.write(str(data[i, 0]) + "   " +  str(data[i, 1]) + "   " +  str(data[i, 2]) + "   " + str(data[i, 3]) + "\n")
+matrix_file.close()
+
 def pot_data(r):
     global data
+    flag = False
     for i in range(0, 182):
-        if r <= data[i, 0]:
+        if r <= data[i, 0] and flag == False:
             v = data[i-1, 3] + (r - data[i-1, 0]) * (data[i, 3] - data[i-1, 3]) / (data[i, 0] - data[i-1, 0])
+            flag = True
             return v
 
 def cgamma(z):
