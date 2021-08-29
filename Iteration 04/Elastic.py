@@ -212,7 +212,6 @@ if lmax < 1000:
     for i in range(1, lmax):
         lm1 = i - 1
         lp1 = i + 1
-        print(i)
         term1 = ( i + lp1 ) * ( etahyp + ( i * lp1 / rho ) )
         term2 = lp1 * math.sqrt( i * i + etahyp2 )
         term3 = 1.0 / ( i * math.sqrt( lp1 * lp1 + etahyp2 ) )
