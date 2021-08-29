@@ -79,7 +79,8 @@ c/// definitions
          fl(ll) =  dfloat (l*(l+1))/rmu2
          z11(ll) = 1.e20
       end do
- 
+      open(unit = 5 , file="prob.txt")
+
 c/// Integrate radial Schrodinger equation for log derivative
       do ll = lmin1,lmmx,lspc
          r=rstart
@@ -87,6 +88,7 @@ c/// Integrate radial Schrodinger equation for log derivative
             r=r+space
             call pot(v,r)
             v11=(en-v)*del4
+            write(5, *) ll, nr, v11, en, v, del4
             cen=1.d0/(r**2)*del4
             r=r+space
             call pot(v,r)
@@ -101,6 +103,7 @@ c/// Integrate radial Schrodinger equation for log derivative
             u11=vv11-ccen*fl(ll)
             den=1.d0+y11
             z11(ll)=y11/den-u11
+
          end do
       end do 
 
@@ -108,7 +111,8 @@ c/// Integrate radial Schrodinger equation for log derivative
          u11=vv11-ccen*fl(ll)
          z11(ll)=(z11(ll)+u11/2.d0)/space
       end do
-  
+      
+      close (unit = 5)
 c/// calculation of the phase shifts 
       rho = rend0 * p1
       tol = 1.0e-04
@@ -212,7 +216,7 @@ c/// differential cross sections
       close (unit = 3)
       open(unit = 4 , file="debug_tests.txt")
       do ll=lmin1,lmmx,lspc          
-            write (4, *) f(ll),fp(ll),g(ll),gp(ll)
+            write (4, *) z11(ll)
       end do
       close (unit = 4)
   
@@ -230,6 +234,11 @@ c Garvey et al. parameterized Hartree-Fock model potential.
             pi = 4 * atan(1.0)
             open(unit=999,file='calculated_potentials.txt')
             do i = 1, 182
+                  read(999, *) Input(i, 1), Input(i, 2)
+            end do
+            close(999)
+
+            do i = 1, 182
                   if(r .ge. Input(i,1) .and. r .lt. Input(i+1,1)) then
                         v = (r - Input(i, 1))
                         v =  v * (Input(i+1,2) - Input(i, 2)) 
@@ -239,7 +248,6 @@ c Garvey et al. parameterized Hartree-Fock model potential.
                         exit
                   end if
             end do
-            close(999)
 
       return
       end
