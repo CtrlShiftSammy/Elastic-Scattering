@@ -181,6 +181,9 @@ sigma = np.empty(shape = (1 + lmx))
 for i in range(lmin1, lmx + 1, lspc):
     fl[i] = float(i * (i-1)) / rmu2
     z11[i] = 10 ** 20
+
+#schrodinger equation integration
+
 for i in range(lmin1, lmx + 1, lspc):
     r=rstart
     for j in range(1, nos + 1, 2):
@@ -204,58 +207,56 @@ for i in range(lmin1, lmx + 1, lspc):
 for i in range(lmin1, lmx + 1, lspc):
     u11=vv11-ccen*fl[i]
     z11[i]=(z11[i]+u11/2.0)/space
-if lmax < 1000:
-    for i in range(0, 2):
-        cz = i + 1.0 + ci*etahyp
-        sigmal = cgammalnphase(cz) 
-        f[i], g[i], fp[i], gp[i] = hyper(i, rho, etahyp, sigmal)
-    for i in range(1, lmax):
-        lm1 = i - 1
-        lp1 = i + 1
-        term1 = ( i + lp1 ) * ( etahyp + ( i * lp1 / rho ) )
-        term2 = lp1 * math.sqrt( i * i + etahyp2 )
-        term3 = 1.0 / ( i * math.sqrt( lp1 * lp1 + etahyp2 ) )
-        f[lp1] = ( term1 * f[i] - term2 * f[lm1] ) * term3
-        g[lp1] = ( term1 * g[i] - term2 * g[lm1] ) * term3
-        term1 = math.sqrt( lp1*lp1 + etahyp2 ) / lp1
-        term2 = ( lp1*lp1 / rho + etahyp) / lp1
-        fp[lp1] = term1 * f[i] - term2 * f[lp1]
-        gp[lp1] = term1 * g[i] - term2 * g[lp1]
-    hcon = 4.0*pi/p1/p1
-    tcs=0.0
-    phase_file = open("Iteration 04/Phase shifts.txt", "w")
-    for i in range(lmin1, lmx + 1, lspc):
+
+for i in range(0, 2):
+    cz = i + 1.0 + ci*etahyp
+    sigmal = cgammalnphase(cz) 
+    f[i], g[i], fp[i], gp[i] = hyper(i, rho, etahyp, sigmal)
+for i in range(1, lmax):
+    lm1 = i - 1
+    lp1 = i + 1
+    term1 = ( i + lp1 ) * ( etahyp + ( i * lp1 / rho ) )
+    term2 = lp1 * math.sqrt( i * i + etahyp2 )
+    term3 = 1.0 / ( i * math.sqrt( lp1 * lp1 + etahyp2 ) )
+    f[lp1] = ( term1 * f[i] - term2 * f[lm1] ) * term3
+    g[lp1] = ( term1 * g[i] - term2 * g[lm1] ) * term3
+    term1 = math.sqrt( lp1*lp1 + etahyp2 ) / lp1
+    term2 = ( lp1*lp1 / rho + etahyp) / lp1
+    fp[lp1] = term1 * f[i] - term2 * f[lp1]
+    gp[lp1] = term1 * g[i] - term2 * g[lp1]
+hcon = 4.0*pi/p1/p1
+tcs=0.0
+phase_file = open("Iteration 04/Phase shifts.txt", "w")
+for i in range(lmin1, lmx + 1, lspc):
+    l = i - 1
+    logder = z11[i] / p1
+    fhyp = f[l]
+    ghyp = g[l]
+    dfhyp = fp[l]
+    dghyp = gp[l]
+    phase[i] = math.atan( (logder*fhyp-dfhyp)/(dghyp-ghyp*logder) )
+    cg = complex(1.0,0.0) 		
+    cz = l + 1.0 + ci*etahyp
+    sigma[i] = cgammalnphase(cz)
+    phase_file.write(str(l) + "   " + str(phase[i]) + "   " + str(sigma[i]) + "\n")
+    tcs = tcs + hcon * (2.0*l+1) * math.sin(phase[i])**2    
+phase_file.close()
+crosssection_file = open("Iteration 04/Cross sections.txt", "w")
+for theta in range(0, 181):
+    ang = (theta + 0.001) * pi / 180.0
+    sint22 = (math.sin(ang / 2)) ** 2
+    ruther = -zasy / ( 2.0 * p1*p1 * sint22 )
+    ruthzm =  zmod / ( 2.0 * p1*p1 * sint22 )
+    cratio = cmath.exp(cgammaln( 1.0+ci*etahyp ) - cgammaln( 1.0-ci*etahyp ))
+    cdexpon = cmath.exp( -1*ci*etahyp*math.log(sint22) )
+    cfc = ruther * cratio * cdexpon
+    cost = math.cos(ang)
+    cfnc = complex(0.0,0.0)
+    for i in range(lmin1, lmax + 1, lspc):
         l = i - 1
-        logder = z11[i] / p1
-        fhyp = f[l]
-        ghyp = g[l]
-        dfhyp = fp[l]
-        dghyp = gp[l]
-        phase[i] = math.atan( (logder*fhyp-dfhyp)/(dghyp-ghyp*logder) )
-        cg = complex(1.0,0.0) 		
-        cz = l + 1.0 + ci*etahyp
-        sigma[i] = cgammalnphase(cz)
-        phase_file.write(str(l) + "   " + str(phase[i]) + "   " + str(sigma[i]) + "\n")
-        tcs = tcs + hcon * (2.0*l+1) * math.sin(phase[i])**2    
-    phase_file.close()
-    crosssection_file = open("Iteration 04/Cross sections.txt", "w")
-    for theta in range(0, 181):
-        ang = (theta + 0.001) * pi / 180.0
-        sint22 = (math.sin(ang / 2)) ** 2
-        ruther = -zasy / ( 2.0 * p1*p1 * sint22 )
-        ruthzm =  zmod / ( 2.0 * p1*p1 * sint22 )
-        cratio = cmath.exp(cgammaln( 1.0+ci*etahyp ) - cgammaln( 1.0-ci*etahyp ))
-        cdexpon = cmath.exp( -1*ci*etahyp*math.log(sint22) )
-        cfc = ruther * cratio * cdexpon
-        cost = math.cos(ang)
-        cfnc = complex(0.0,0.0)
-        for i in range(lmin1, lmax + 1, lspc):
-            l = i - 1
-            cfnc = cfnc + (2*l+1.0) * cmath.exp(2.0*ci*sigma[i]) * (cmath.exp(2.0*ci*phase[i])-1.0) * pl(l,cost)
-        cfnc = cfnc / (2.0*ci*p1)
-        cf = cfc + cfnc
-        dcs = abs(cf)**2
-        crosssection_file.write(str(theta) + "   " +  str(dcs) + "   " +  str(ruther**2) + "   " + str(ruthzm**2) + "\n")
-    crosssection_file.close()
-else:
-    print("Maximum l should be < 1000")
+        cfnc = cfnc + (2*l+1.0) * cmath.exp(2.0*ci*sigma[i]) * (cmath.exp(2.0*ci*phase[i])-1.0) * pl(l,cost)
+    cfnc = cfnc / (2.0*ci*p1)
+    cf = cfc + cfnc
+    dcs = abs(cf)**2
+    crosssection_file.write(str(theta) + "   " +  str(dcs) + "   " +  str(ruther**2) + "   " + str(ruthzm**2) + "\n")
+crosssection_file.close()
