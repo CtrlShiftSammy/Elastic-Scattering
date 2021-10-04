@@ -61,23 +61,32 @@ def pot(r):
         v = zasy / r
     return v
 data_file = open("Iteration 04/density_xe+2.dat", "r")
-data = np.empty(shape = (182, 4))
+data = np.empty(shape = (182, 5))
 for i in range(0, 182):
     str1, str2 = (data_file.readline()).strip().split("  ")
     data[i,0] = float(str1.strip())
     data[i,1] = float(str2.strip())
-data[0, 2] = 4 * pi * ((data[1, 0]) ** 3) * data[1, 1] / 3
-data[0, 3] = data[0, 2] / data[0, 0]
+data[0, 2] = 4.0 * pi * ((data[1, 0]) ** 3) * data[1, 1] / 3.0
+data[181, 3] = 4.0 * pi * ((data[181, 0]) ** 2) * data[181, 1] / 2.0
+data[0, 4] = data[0, 2] / data[0, 0]
 for i in range(1, 182):
     data[i, 2] = data[i-1, 2] + 4 * pi * ((data[i, 0]) ** 3 - (data[i-1, 0]) ** 3) * (data[i, 1] + data[i-1, 1]) / 6.0
-    data[i, 3] = (zmod - data[i, 2]) / data[i, 0]
+    #data[182-i-1, 3] = data[182-i, 3] + 4 * pi * ((data[182-i, 0]) ** 2 - (data[182-i-1, 0]) ** 2) * (data[182-i, 1] + data[182-i-1, 1]) / 4.0
+for i in range(1, 182):
+    data[i, 4] = (zmod - data[i, 2]) / data[i, 0] - data[i, 3]
+    
+#0 is radius
+#1 is rho
+#2 is enclosed Q
+#3 is pot3
+#4 is pot
 data_file.close()
 def pot_data(r):
     global data
     flag = False
     for i in range(0, 182):
         if r <= data[i, 0] and flag == False:
-            v = data[i-1, 3] + (r - data[i-1, 0]) * (data[i, 3] - data[i-1, 3]) / (data[i, 0] - data[i-1, 0])
+            v = data[i-1, 4] + (r - data[i-1, 0]) * (data[i, 4] - data[i-1, 4]) / (data[i, 0] - data[i-1, 0])
             flag = True
             return v
 def cgamma(z):
