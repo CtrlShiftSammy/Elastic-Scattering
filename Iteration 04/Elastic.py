@@ -71,7 +71,7 @@ data[181, 3] = 4.0 * pi * ((data[181, 0]) ** 2) * data[181, 1] / 2.0
 data[0, 4] = data[0, 2] / data[0, 0]
 for i in range(1, 182):
     data[i, 2] = data[i-1, 2] + 4 * pi * ((data[i, 0]) ** 3 - (data[i-1, 0]) ** 3) * (data[i, 1] + data[i-1, 1]) / 6.0
-    #data[182-i-1, 3] = data[182-i, 3] + 4 * pi * ((data[182-i, 0]) ** 2 - (data[182-i-1, 0]) ** 2) * (data[182-i, 1] + data[182-i-1, 1]) / 4.0
+    data[182-i-1, 3] = data[182-i, 3] + 4 * pi * ((data[182-i, 0]) ** 2 - (data[182-i-1, 0]) ** 2) * (data[182-i, 1] + data[182-i-1, 1]) / 4.0
 for i in range(1, 182):
     data[i, 4] = (zmod - data[i, 2]) / data[i, 0] - data[i, 3]
     
