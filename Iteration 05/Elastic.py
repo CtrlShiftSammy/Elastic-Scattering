@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from numpy.lib.type_check import imag
-input_file = open("Iteration 04/elastic.in", "r")
+input_file = open("Iteration 05/elastic.in", "r")
 en = (float(input_file.readline().strip()) / 27.211)
 rmu = float(input_file.readline().strip())
 rstart = float(input_file.readline().strip())
@@ -60,7 +60,7 @@ def pot(r):
     else:
         v = zasy / r
     return v
-data_file = open("Iteration 04/density_xe+2.dat", "r")
+data_file = open("Iteration 05/density_xe+2.dat", "r")
 data = np.empty(shape = (182, 5))
 for i in range(0, 182):
     str1, str2 = (data_file.readline()).strip().split("  ")
@@ -89,6 +89,55 @@ def pot_data(r):
             v = data[i-1, 4] + (r - data[i-1, 0]) * (data[i, 4] - data[i-1, 4]) / (data[i, 0] - data[i-1, 0])
             flag = True
             return v
+def pot_data_lagrangian(r):
+    global data
+    sum = 0
+    for i in range(0, 182):
+        term = 1
+        for j in range(0, 182):
+            if i != j:
+                term = term * (r - data[j, 0]) / (data[i, 0] - data[j, 0])
+                #print(i, j, term)
+        sum = sum + term * data[i, 4]
+    return sum
+def pot_data_smooth(r):
+    global data
+    m1 = 0
+    m2 =0
+    c = 0
+    for i in range(0, 181):
+        if (r >= data[i, 0] and r <= data[i+1, 0]):
+            if i == 0:
+                m1 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
+                m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
+            elif i == 180:
+                m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
+                m2 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
+            else:
+                m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
+                m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
+            y = (m2 - m1) * r * r / (2 * (data[i+1, 0] - data[i, 0])) + (m1 * data[i+1, 0] - m2 * data[i, 0]) * r / (data[i+1, 0] - data[i, 0]) + data[i, 4] - ((m2 * data[i, 0] * data[i, 0] - m1 * data[i, 0] * data[i, 0]) / 2 + (m1 * data[i, 0] * data[i+1, 0] - m2 * data[i, 0] * data[i, 0])) / (data[i+1, 0] - data[i, 0])
+            return y
+def pot_data_quadratic(r):
+    global data
+    m1 = 0
+    m2 =0
+    for i in range(0, 181):
+        if (r >= data[i, 0] and r <= data[i+1, 0]):
+            if i == 0:
+                m1 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
+                m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
+            elif i == 180:
+                m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
+                m2 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
+            else:
+                m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
+                m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
+            a = (m2 - m1) / (2 * (data[i+1, 0] - data[i, 0]))
+            b = m1 - 2 * a * data[i, 0]
+            c = ((data[i, 4] - b * data[i, 0] - a * data[i, 0] * data[i, 0]) * (data[i + 1, 0] - r) + (data[i+1, 4] - b * data[i + 1, 0] - a * data[i + 1, 0] * data[i + 1, 0]) * (r - data[i, 0])) / ((data[i + 1, 0] - r) + (r - data[i, 0]))
+            y = a * r * r + b * r + c
+            return y
 def cgamma(z):
     cof = np.array([76.18009173e0, -86.50532033e0, 24.01409822e0, -1.231739516e0, 1.20858003e-3, -5.36382e-6])
     if z.real < 1:
@@ -194,8 +243,8 @@ for i in range(lmin1, lmx + 1, lspc):
 #schrodinger equation integration
 potential_data = np.empty(shape = (nos+1))
 for i in range(1, nos + 1):
-    potential_data[i] = pot_data(i * space)
-    print(i)
+    potential_data[i] = pot_data_quadratic(i * space)
+    #print(i)
 
 for i in range(lmin1, lmx + 1, lspc):
     r=rstart
@@ -211,6 +260,7 @@ for i in range(lmin1, lmx + 1, lspc):
        #v = pot_data_lagrangian(r)
        k+= 1
        v = potential_data[k]    
+       #print(i, j, v)   
        vv11=(en-v)*del2
        ccen=1.0/(r**2)*del2
        y11=z11[i]
@@ -244,7 +294,7 @@ for i in range(1, lmax):
     gp[lp1] = term1 * g[i] - term2 * g[lp1]
 hcon = 4.0*pi/p1/p1
 tcs=0.0
-phase_file = open("Iteration 04/Phase shifts.txt", "w")
+phase_file = open("Iteration 05/Phase shifts.txt", "w")
 for i in range(lmin1, lmx + 1, lspc):
     l = i - 1
     logder = z11[i] / p1
@@ -259,7 +309,7 @@ for i in range(lmin1, lmx + 1, lspc):
     phase_file.write(str(l) + "   " + str(phase[i]) + "   " + str(sigma[i]) + "\n")
     tcs = tcs + hcon * (2.0*l+1) * math.sin(phase[i])**2    
 phase_file.close()
-crosssection_file = open("Iteration 04/Cross sections.txt", "w")
+crosssection_file = open("Iteration 05/Cross sections.txt", "w")
 for theta in range(0, 181):
     ang = (theta + 0.001) * pi / 180.0
     sint22 = (math.sin(ang / 2)) ** 2
