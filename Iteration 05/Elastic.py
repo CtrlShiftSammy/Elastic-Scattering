@@ -60,19 +60,21 @@ def pot(r):
     else:
         v = zasy / r
     return v
+data_lines = 182
 data_file = open("Iteration 05/density_xe+2.dat", "r")
-data = np.empty(shape = (182, 5))
-for i in range(0, 182):
+data = np.empty(shape = (data_lines, 5))
+for i in range(0, data_lines):
     str1, str2 = (data_file.readline()).strip().split("  ")
     data[i,0] = float(str1.strip())
     data[i,1] = float(str2.strip())
 data[0, 2] = 4.0 * pi * ((data[1, 0]) ** 3) * data[1, 1] / 3.0
-data[181, 3] = 4.0 * pi * ((data[181, 0]) ** 2) * data[181, 1] / 2.0
+data[data_lines - 1, 3] = 4.0 * pi * ((data[data_lines - 1, 0]) ** 2) * data[data_lines - 1, 1] / 2.0
 data[0, 4] = data[0, 2] / data[0, 0]
-for i in range(1, 182):
+for i in range(1, data_lines):
     data[i, 2] = data[i-1, 2] + 4 * pi * ((data[i, 0]) ** 3 - (data[i-1, 0]) ** 3) * (data[i, 1] + data[i-1, 1]) / 6.0
-    data[182-i-1, 3] = data[182-i, 3] + 4 * pi * ((data[182-i, 0]) ** 2 - (data[182-i-1, 0]) ** 2) * (data[182-i, 1] + data[182-i-1, 1]) / 4.0
-for i in range(1, 182):
+    #data[i, 2] = data[i-1, 2] + 4 * pi * data[i, 1] * (data[i, 0] ** 2)
+    data[data_lines-i-1, 3] = data[data_lines-i, 3] + 4 * pi * ((data[data_lines-i, 0]) ** 2 - (data[data_lines-i-1, 0]) ** 2) * (data[data_lines-i, 1] + data[data_lines-i-1, 1]) / 4.0
+for i in range(1, data_lines):
     data[i, 4] = (zmod - data[i, 2]) / data[i, 0] - data[i, 3]
     
 #0 is radius
@@ -84,7 +86,7 @@ data_file.close()
 def pot_data(r):
     global data
     flag = False
-    for i in range(0, 182):
+    for i in range(0, data_lines):
         if r <= data[i, 0] and flag == False:
             v = data[i-1, 4] + (r - data[i-1, 0]) * (data[i, 4] - data[i-1, 4]) / (data[i, 0] - data[i-1, 0])
             flag = True
@@ -92,9 +94,9 @@ def pot_data(r):
 def pot_data_lagrangian(r):
     global data
     sum = 0
-    for i in range(0, 182):
+    for i in range(0, data_lines):
         term = 1
-        for j in range(0, 182):
+        for j in range(0, data_lines):
             if i != j:
                 term = term * (r - data[j, 0]) / (data[i, 0] - data[j, 0])
                 #print(i, j, term)
@@ -105,12 +107,12 @@ def pot_data_smooth(r):
     m1 = 0
     m2 =0
     c = 0
-    for i in range(0, 181):
+    for i in range(0, data_lines - 1):
         if (r >= data[i, 0] and r <= data[i+1, 0]):
             if i == 0:
                 m1 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
                 m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
-            elif i == 180:
+            elif i == data_lines - 2:
                 m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
                 m2 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
             else:
@@ -122,12 +124,12 @@ def pot_data_quadratic(r):
     global data
     m1 = 0
     m2 =0
-    for i in range(0, 181):
+    for i in range(0, data_lines - 1):
         if (r >= data[i, 0] and r <= data[i+1, 0]):
             if i == 0:
                 m1 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
                 m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
-            elif i == 180:
+            elif i == data_lines - 2:
                 m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
                 m2 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
             else:
@@ -310,7 +312,7 @@ for i in range(lmin1, lmx + 1, lspc):
     tcs = tcs + hcon * (2.0*l+1) * math.sin(phase[i])**2    
 phase_file.close()
 crosssection_file = open("Iteration 05/Cross sections.txt", "w")
-for theta in range(0, 181):
+for theta in range(0, data_lines - 1):
     ang = (theta + 0.001) * pi / 180.0
     sint22 = (math.sin(ang / 2)) ** 2
     ruther = -zasy / ( 2.0 * p1*p1 * sint22 )
