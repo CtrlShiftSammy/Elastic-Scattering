@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from numpy.lib.type_check import imag
-input_file = open("Iteration 06/elastic.in", "r")
+input_file = open("Iteration 07/elastic.in", "r")
 en = (float(input_file.readline().strip()) / 27.211)
 rmu = float(input_file.readline().strip())
 rstart = float(input_file.readline().strip())
@@ -60,10 +60,10 @@ def pot(r):
         v = zasy / r
     return v
 #data_lines = 182
-#data_file = open("Iteration 06/density_xe+2.dat", "r")
+#data_file = open("Iteration 07/density_xe+2.dat", "r")
 data_lines = 270001
-data_file = open("Iteration 06/density_xe+2_smooth.dat", "r")
-data = np.empty(shape = (data_lines, 5))
+data_file = open("Iteration 07/density_xe+2_smooth.dat", "r")
+data = np.empty(shape = (data_lines, 7))
 for i in range(0, data_lines):
     str1, str2 = (data_file.readline()).strip().split("  ")
     data[i,0] = float(str1.strip())
@@ -82,7 +82,9 @@ print(str(data[data_lines - 1, 2]))
 #1 is rho
 #2 is enclosed Q
 #3 is pot3
-#4 is pot
+#4 is static pot
+#5 is exchange pot
+#6 is polarization pot
 data_file.close()
 def pot_data(r):
     global data
@@ -297,7 +299,7 @@ for i in range(1, lmax):
     gp[lp1] = term1 * g[i] - term2 * g[lp1]
 hcon = 4.0*pi/p1/p1
 tcs=0.0
-phase_file = open("Iteration 06/Phase shifts.txt", "w")
+phase_file = open("Iteration 07/Phase shifts.txt", "w")
 for i in range(lmin1, lmx + 1, lspc):
     l = i - 1
     logder = z11[i] / p1
@@ -312,7 +314,7 @@ for i in range(lmin1, lmx + 1, lspc):
     phase_file.write(str(l) + "   " + str(phase[i]) + "   " + str(sigma[i]) + "\n")
     tcs = tcs + hcon * (2.0*l+1) * math.sin(phase[i])**2    
 phase_file.close()
-crosssection_file = open("Iteration 06/Cross sections smooth.txt", "w")
+crosssection_file = open("Iteration 07/Cross sections smooth.txt", "w")
 for theta in range(0, 180):
     ang = (theta + 0.001) * pi / 180.0
     sint22 = (math.sin(ang / 2)) ** 2

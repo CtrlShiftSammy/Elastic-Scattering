@@ -93,7 +93,7 @@ def interpolate_logr_logrho(r):
             return 10**y
 
 data_lines = 182
-data_file = open("Iteration 06/density_xe+2.dat", "r")
+data_file = open("Iteration 07/density_xe+2.dat", "r")
 data = np.empty(shape = (data_lines, 4))
 for i in range(0, data_lines):
     str1, str2 = (data_file.readline()).strip().split("  ")
@@ -102,7 +102,7 @@ for i in range(0, data_lines):
     data[i,2] = log10(data[i,0])
     data[i,3] = log10(data[i,1])
 data_file.close()
-smooth_data_file = open("Iteration 06/density_xe+2_smooth.dat", "w")
+smooth_data_file = open("Iteration 07/density_xe+2_smooth.dat", "w")
 r = 0.0
 while (r < 27.0):
     r += 0.0001
