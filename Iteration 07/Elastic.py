@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from numpy.lib.type_check import imag
 input_file = open("Iteration 07/elastic.in", "r")
-en = (float(input_file.readline().strip()) / 27.211)
+en = (float(input_file.readline().strip()) / 27.2114)
 rmu = float(input_file.readline().strip())
 rstart = float(input_file.readline().strip())
 ren = float(input_file.readline().strip())
@@ -73,7 +73,6 @@ data[data_lines - 1, 3] = 4.0 * pi * ((data[data_lines - 1, 0]) ** 2) * data[dat
 data[0, 4] = data[0, 2] / data[0, 0]
 for i in range(1, data_lines):
     data[i, 2] = data[i-1, 2] + 4 * pi * ((data[i, 0]) ** 3 - (data[i-1, 0]) ** 3) * (data[i, 1] + data[i-1, 1]) / 6.0
-    #data[i, 2] = data[i-1, 2] + 4 * pi * data[i, 1] * (data[i, 0] ** 2)
     data[data_lines-i-1, 3] = data[data_lines-i, 3] + 4 * pi * ((data[data_lines-i, 0]) ** 2 - (data[data_lines-i-1, 0]) ** 2) * (data[data_lines-i, 1] + data[data_lines-i-1, 1]) / 4.0
 for i in range(1, data_lines):
     data[i, 4] = (zmod - data[i, 2]) / data[i, 0] - data[i, 3]
@@ -85,6 +84,7 @@ print(str(data[data_lines - 1, 2]))
 #4 is static pot
 #5 is exchange pot
 #6 is polarization pot
+#7 is total pot
 data_file.close()
 def pot_data(r):
     global data
@@ -314,6 +314,8 @@ for i in range(lmin1, lmx + 1, lspc):
     phase_file.write(str(l) + "   " + str(phase[i]) + "   " + str(sigma[i]) + "\n")
     tcs = tcs + hcon * (2.0*l+1) * math.sin(phase[i])**2    
 phase_file.close()
+for i in range(0, 27):
+    print (i, pot_data_quadratic(i))
 crosssection_file = open("Iteration 07/Cross sections smooth.txt", "w")
 for theta in range(0, 180):
     ang = (theta + 0.001) * pi / 180.0
