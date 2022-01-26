@@ -63,7 +63,7 @@ def pot(r):
 #data_file = open("Iteration 07/density_xe+2.dat", "r")
 data_lines = 270001
 data_file = open("Iteration 07/density_xe+2_smooth.dat", "r")
-data = np.empty(shape = (data_lines, 7))
+data = np.empty(shape = (data_lines, 8))
 for i in range(0, data_lines):
     str1, str2 = (data_file.readline()).strip().split("  ")
     data[i,0] = float(str1.strip())
@@ -77,6 +77,8 @@ for i in range(1, data_lines):
 for i in range(1, data_lines):
     data[i, 4] = (zmod - data[i, 2]) / data[i, 0] - data[i, 3]
     data[i, 5] = 0.5 * ((en - data[i, 4]) - ((en - data[i, 4]) ** 2 + 4 * pi * data[i, 1]) ** 0.5)
+    data[i, 6] = 0 #add pol pot
+    data[i, 7] = data[i, 4] + data[i, 5] + data[i, 6]
 print(str(data[data_lines - 1, 2]))
 #0 is radius
 #1 is rho
@@ -131,17 +133,17 @@ def pot_data_quadratic(r):
     for i in range(0, data_lines - 1):
         if (r >= data[i, 0] and r <= data[i+1, 0]):
             if i == 0:
-                m1 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
-                m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
+                m1 = (data[i+1, 7] - data[i, 7]) / (data[i+1, 0] - data[i, 0])
+                m2 = (data[i+2, 7] - data[i, 7]) / (data[i+2, 0] - data[i, 0])
             elif i == data_lines - 2:
-                m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
-                m2 = (data[i+1, 4] - data[i, 4]) / (data[i+1, 0] - data[i, 0])
+                m1 = (data[i+1, 7] - data[i-1, 7]) / (data[i+1, 0] - data[i-1, 0])
+                m2 = (data[i+1, 7] - data[i, 7]) / (data[i+1, 0] - data[i, 0])
             else:
-                m1 = (data[i+1, 4] - data[i-1, 4]) / (data[i+1, 0] - data[i-1, 0])
-                m2 = (data[i+2, 4] - data[i, 4]) / (data[i+2, 0] - data[i, 0])
+                m1 = (data[i+1, 7] - data[i-1, 7]) / (data[i+1, 0] - data[i-1, 0])
+                m2 = (data[i+2, 7] - data[i, 7]) / (data[i+2, 0] - data[i, 0])
             a = (m2 - m1) / (2 * (data[i+1, 0] - data[i, 0]))
             b = m1 - 2 * a * data[i, 0]
-            c = ((data[i, 4] - b * data[i, 0] - a * data[i, 0] * data[i, 0]) * (data[i + 1, 0] - r) + (data[i+1, 4] - b * data[i + 1, 0] - a * data[i + 1, 0] * data[i + 1, 0]) * (r - data[i, 0])) / ((data[i + 1, 0] - r) + (r - data[i, 0]))
+            c = ((data[i, 7] - b * data[i, 0] - a * data[i, 0] * data[i, 0]) * (data[i + 1, 0] - r) + (data[i+1, 7] - b * data[i + 1, 0] - a * data[i + 1, 0] * data[i + 1, 0]) * (r - data[i, 0])) / ((data[i + 1, 0] - r) + (r - data[i, 0]))
             y = a * r * r + b * r + c
             return y
 def cgamma(z):
@@ -315,8 +317,6 @@ for i in range(lmin1, lmx + 1, lspc):
     phase_file.write(str(l) + "   " + str(phase[i]) + "   " + str(sigma[i]) + "\n")
     tcs = tcs + hcon * (2.0*l+1) * math.sin(phase[i])**2    
 phase_file.close()
-for i in range(0, 27):
-    print (i, pot_data_quadratic(i))
 crosssection_file = open("Iteration 07/Cross sections smooth.txt", "w")
 for theta in range(0, 180):
     ang = (theta + 0.001) * pi / 180.0
