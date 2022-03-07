@@ -146,6 +146,11 @@ def pot_data_quadratic(r):
             c = ((data[i, 7] - b * data[i, 0] - a * data[i, 0] * data[i, 0]) * (data[i + 1, 0] - r) + (data[i+1, 7] - b * data[i + 1, 0] - a * data[i + 1, 0] * data[i + 1, 0]) * (r - data[i, 0])) / ((data[i + 1, 0] - r) + (r - data[i, 0]))
             y = a * r * r + b * r + c
             return y
+def pot_final(r):
+    if r < rmod:
+        return pot_data_quadratic(r)
+    else:
+        return (qmod) / r
 def cgamma(z):
     cof = np.array([76.18009173e0, -86.50532033e0, 24.01409822e0, -1.231739516e0, 1.20858003e-3, -5.36382e-6])
     if z.real < 1:
@@ -251,7 +256,7 @@ for i in range(lmin1, lmx + 1, lspc):
 #schrodinger equation integration
 potential_data = np.empty(shape = (nos+1))
 for i in range(1, nos + 1):
-    potential_data[i] = pot_data_quadratic(i * space)
+    potential_data[i] = pot_final(i * space)
     #print(i)
 
 for i in range(lmin1, lmx + 1, lspc):
@@ -336,3 +341,8 @@ for theta in range(0, 180):
     dcs = abs(cf)**2
     crosssection_file.write(str(theta) + "   " +  str(dcs) + "   " +  str(ruther**2) + "   " + str(ruthzm**2) + "\n")
 crosssection_file.close()
+
+potential_file = open("Iteration 07/potential_file.txt", "w")
+for i in range(0, 270000):
+    potential_file.write(str(data[i, 0]) + "   " + str(data[i, 0] * data[i, 4]) + "   " + "\n")
+potential_file.close()
